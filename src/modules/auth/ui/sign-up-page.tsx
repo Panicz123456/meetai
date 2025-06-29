@@ -3,13 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { OctagonAlertIcon } from "lucide-react";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInSchema, signInSchemaType } from "@/schema/auth";
+import { signUpSchema, signUpSchemaType } from "@/schema/auth";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -24,35 +25,60 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
-export const SignInView = () => {
-  const route = useRouter();
+export const SignUpView = () => {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false)
+  const [pending, setPending] = useState(false);
 
-  const form = useForm<signInSchemaType>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<signUpSchemaType>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: signInSchemaType) => {
+  const onSubmit = (data: signUpSchemaType) => {
     setError(null);
-    setPending(true)
+    setPending(true);
 
-    authClient.signIn.email(
+    authClient.signUp.email(
       {
+        name: data.name,
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
-          setPending(false)
-          route.push("/");
+          router.push("/");
+          setPending(false);
         },
         onError: ({ error }) => {
-          setPending(false)
+          setPending(false);
+          setError(error.message);
+        },
+      }
+    );
+  };
+
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+        },
+        onError: ({ error }) => {
+          setPending(false);
           setError(error.message);
         },
       }
@@ -67,10 +93,25 @@ export const SignInView = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
-                  <h1 className="text-2xl font-bold">Welcome back</h1>
+                  <h1 className="text-2xl font-bold">Let&apos;t get started</h1>
                   <p className="text-muted-foreground text-balance">
-                    Login to your account
+                    Create your account
                   </p>
+                </div>
+                <div className="grid gap-3">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <div className="grid gap-3">
                   <FormField
@@ -110,20 +151,36 @@ export const SignInView = () => {
                     )}
                   />
                 </div>
+                <div className="grid gap-3">
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="*******"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 {!!error && (
                   <Alert className="bg-destructive/10 border-none">
                     <OctagonAlertIcon className="size-4 !text-destructive" />
                     <AlertTitle>{error}</AlertTitle>
                   </Alert>
                 )}
-                <Button
-                  disabled={pending}
-                  type="submit"
-                  className="w-full"
-                >
-                  Sign in
+                <Button disabled={pending} type="submit" className="w-full">
+                  Sign up
                 </Button>
-                <div className="after:border-border relative text-center text-sm after:absolute 
+                <div
+                  className="after:border-border relative text-center text-sm after:absolute 
                 after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">
                     Or continue with
@@ -131,42 +188,44 @@ export const SignInView = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <Button
+                    onClick={() => onSocial("google")}
                     disabled={pending}
                     variant="outline"
                     type="button"
-                    className="w-full"
-                  >
-                    Google
+                    className="w-full">
+                    <FaGoogle />
                   </Button>
                   <Button
+                    onClick={() => onSocial("github")}
                     disabled={pending}
                     variant="outline"
                     type="button"
-                    className="w-full"
-                  >
-                    Github
+                    className="w-full">
+                    <FaGithub />
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}
+                  already have account{" "}
                   <Link
-                    href="/sign-up"
+                    href="/sign-in"
                     className="underline underline-offset-4"
                   >
-                    Sign up
+                    Sign in
                   </Link>
                 </div>
               </div>
             </form>
           </Form>
-          <div className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col 
+          <div
+            className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col 
           gap-y-4 items-center justify-center">
             <Image width={92} height={92} src="/logo.svg" alt="logo" />
             <p className="text-2xl font-semibold text-white">Meet.AI</p>
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance 
+      <div
+        className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance 
       *:[a]:underline *:[a]:underline-offset-4">
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>
