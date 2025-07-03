@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -10,7 +10,11 @@ export const HomeView = () => {
   const { data: session } = authClient.useSession();
 
   if (!session) {
-    return <p>Loading...</p>;
+    return (
+      <div>
+        loading...
+      </div>
+    )
   }
 
   return (
@@ -19,7 +23,7 @@ export const HomeView = () => {
       <Button
         onClick={() =>
           authClient.signOut({
-            fetchOptions: { onSuccess: () => router.push("/sign-in") },
+            fetchOptions: { onSuccess: () => router.push("/sign-in"), },
           })
         }
       >
