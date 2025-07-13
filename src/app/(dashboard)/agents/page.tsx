@@ -13,7 +13,7 @@ import {
   AgentViewError,
   AgentViewLoading,
 } from "@/modules/agents/ui/views/agents-view";
-import { ListHeader } from "@/modules/agents/ui/components/list-header";
+import { AgentListHeader } from "@/modules/agents/ui/components/agent-list-header";
 import { loadSearchParams } from "@/modules/agents/params";
 
 interface Props {
@@ -38,7 +38,7 @@ const page = async ({ searchParams }: Props) => {
 
   return (
     <>
-      <ListHeader />
+      <AgentListHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<AgentViewLoading />}>
           <ErrorBoundary fallback={<AgentViewError />}>
