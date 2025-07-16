@@ -13,6 +13,7 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 import { meetingInsertSchema, meetingUpdateSchema } from "@/schema/meeting";
+import { MeetingStatus } from "../types";
 
 export const meetingRouter = createTRPCRouter({
   update: protectedProcedure
@@ -22,17 +23,14 @@ export const meetingRouter = createTRPCRouter({
         .update(meeting)
         .set(input)
         .where(
-          and(
-            eq(meeting.id, input.id),
-            eq(meeting.userId, ctx.auth.user.id)
-          )
+          and(eq(meeting.id, input.id), eq(meeting.userId, ctx.auth.user.id))
         )
         .returning();
 
       if (!updatedMeeting) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Agents not found",
+          message: "Meetings not found",
         });
       }
 
@@ -69,10 +67,18 @@ export const meetingRouter = createTRPCRouter({
           .max(MAX_PAGE_SIZE)
           .default(DEFAULT_PAGE_SIZE),
         search: z.string().nullish(),
+        agentId: z.string().nullish(),
+        status: z.enum([
+          MeetingStatus.Upcoming,
+          MeetingStatus.Active,
+          MeetingStatus.Completed,
+          MeetingStatus.Processing,
+          MeetingStatus.Cancelled,
+        ]).nullish(),
       })
     )
     .query(async ({ ctx, input }) => {
-      const { search, page, pageSize } = input;
+      const { search, page, pageSize, status, agentId } = input;
 
       const data = await db
         .select({
@@ -87,7 +93,9 @@ export const meetingRouter = createTRPCRouter({
         .where(
           and(
             eq(meeting.userId, ctx.auth.user.id),
-            search ? ilike(meeting.name, `%${search}%`) : undefined
+            search ? ilike(meeting.name, `%${search}%`) : undefined,
+            status ? eq(meeting.status, status) : undefined,
+            agentId ? eq(meeting.agentId, agentId) : undefined 
           )
         )
         .orderBy(desc(meeting.createdAt), desc(meeting.id))
@@ -103,7 +111,10 @@ export const meetingRouter = createTRPCRouter({
         .where(
           and(
             eq(meeting.userId, ctx.auth.user.id),
-            search ? ilike(meeting.name, `%${search}%`) : undefined
+            search ? ilike(meeting.name, `%${search}%`) : undefined,
+            status ? eq(meeting.status, status) : undefined,
+            agentId ? eq(meeting.agentId, agentId) : undefined
+
           )
         );
 
