@@ -48,7 +48,7 @@ export const useConfirm = (
         <Button
           onClick={handleConfirm}
           variant="outline"
-          className="w-full lg:w-auto"
+          className="w-full lg:w-auto bg-primary text-primary-foreground"
         >
           Confirm
         </Button>
