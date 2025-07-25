@@ -33,6 +33,7 @@ export const meetingRouter = createTRPCRouter({
       },
     ]);
 
+    // Can create some bug
     const expirationTime = Math.floor(Date.now() / 1000) + 3600;
     const issuedAt = Math.floor(Date.now() / 1000) - 60;
 
@@ -190,7 +191,6 @@ export const meetingRouter = createTRPCRouter({
         })
         .returning();
 
-      //TODO: Create Stream Call, Upsert Stream Users
       const call = streamVideo.video.call("default", createMeeting.id);
       await call.create({
         data: {
