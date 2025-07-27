@@ -6,7 +6,7 @@ import { agents, meeting, user } from "@/db/schema";
 import { inngest } from "@/inngest/client";
 import { createAgent, openai, TextMessage } from "@inngest/agent-kit";
 
-import { StreamTranscriptionItem } from "@/modules/meeting/types";
+import { StreamTranscriptItem } from "@/modules/meeting/types";
 
 const summarizer = createAgent({
   name: "summarizer",
@@ -46,7 +46,7 @@ export const meetingsProcessing = inngest.createFunction(
     });
 
     const transcription = await step.run("parse-transcript", async () => {
-      return JSONL.parse<StreamTranscriptionItem>(response);
+      return JSONL.parse<StreamTranscriptItem>(response);
     });
 
     const transcriptionWithSpeakers = await step.run(
