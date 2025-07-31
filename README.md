@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MeetAI
 
-## Getting Started
+**MeetAI** to nowoczesna aplikacja do prowadzenia rozmów w czasie rzeczywistym z udziałem **customowych agentów AI**, umożliwiająca:
 
-First, run the development server:
+- połączenia audio-wideo z udziałem AI,
+- automatyczne generowanie **transkryptów i podsumowań spotkań** w tle,
+- pełne doświadczenie po rozmowie: **odtwarzanie nagrań**, **przeszukiwanie transkryptów**, oraz **chat z AI**, który rozumie kontekst spotkania.
+
+---
+
+## 🧠 Funkcjonalności
+
+- ✅ Połączenia wideo z asystentem AI
+- 📝 Generowanie transkryptów i podsumowań spotkań (background jobs)
+- 🔍 Przeszukiwanie treści spotkania
+- 🤖 Chat AI z kontekstem historycznym rozmowy
+- 📼 Odtwarzanie nagranych spotkań
+- 🔐 Uwierzytelnianie i autoryzacja użytkowników
+- 🌗 Obsługa motywów (dark/light)
+
+---
+
+## ⚙️ Technologie
+
+### 🧩 Framework & UI
+
+- **Next.js** — główny framework frontendowy (SSR + API)
+- **React 19** — nowoczesny interfejs użytkownika
+- **Tailwind CSS** + **Radix UI** — szybkie i dostępne komponenty UI
+- **Lucide-react** — ikony SVG
+
+### 📞 Komunikacja w czasie rzeczywistym
+
+- **@stream-io/video-react-sdk** — integracja połączeń wideo
+- **@stream-io/openai-realtime-api** — AI reagujące w czasie rzeczywistym
+- **stream-chat / stream-chat-react** — czatowanie z AI oraz między użytkownikami
+
+### 🤖 Sztuczna inteligencja
+
+- **OpenAI SDK** — dostęp do modeli GPT
+- **AI podsumowania i analizy transkryptów** (z wykorzystaniem background jobs)
+
+### 💾 Backend & Baza danych
+
+- **Drizzle ORM** — typowany ORM dla TypeScript
+- **Neon** — serwerless baza danych PostgreSQL
+- **Inngest** — background jobs / task scheduling (np. generowanie transkryptów)
+
+### 🔐 Autoryzacja
+
+- **Better-auth / @polar-sh** — bezpieczne uwierzytelnianie i zarządzanie sesjami
+
+### 📊 Inne
+
+- **React Query + TRPC** — komunikacja klient–serwer
+- **Zod** — walidacja danych
+- **React Hook Form** — obsługa formularzy
+- **Embla Carousel, recharts, day-picker** — komponenty UI i interaktywne elementy
+
+---
+
+## 🛠️ Uruchamianie lokalnie
 
 ```bash
+# Instalacja zależności
+npm install
+
+# Start w trybie developerskim
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Budowanie projektu
+npm run build
+npm start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Synchronizacja schematu DB
+npm run db:push
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Panel do eksploracji DB (Drizzle Studio)
+npm run db:studio
