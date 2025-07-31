@@ -29,7 +29,7 @@ export const AgentIdView = ({ agentId }: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [updateAgentDialogOpen, setUpdateAgentDialogOpen] = useState(false)
+  const [updateAgentDialogOpen, setUpdateAgentDialogOpen] = useState(false);
 
   const { data } = useSuspenseQuery(
     trpc.agents.getOne.queryOptions({ id: agentId })
@@ -41,7 +41,11 @@ export const AgentIdView = ({ agentId }: Props) => {
         await queryClient.invalidateQueries(
           trpc.agents.getMany.queryOptions({})
         );
-        // TODO: Invalidate free tier usage
+
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
+
         router.push("/agents");
       },
       onError: (error) => {
@@ -53,15 +57,15 @@ export const AgentIdView = ({ agentId }: Props) => {
   const [RemoveConfirmation, confirmRemove] = useConfirm(
     "Are you sure?",
     `The following action will remove ${data.meetingsCount} associated meetings`
-  )
+  );
 
   const handelRemoveAgent = async () => {
-    const ok = await confirmRemove()
+    const ok = await confirmRemove();
 
     if (!ok) return;
 
-    await removeAgent.mutateAsync({ id: agentId })
-  }
+    await removeAgent.mutateAsync({ id: agentId });
+  };
 
   return (
     <>

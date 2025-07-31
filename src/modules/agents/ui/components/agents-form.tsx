@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 type Props = {
   onSuccess?: () => void;
@@ -28,25 +29,27 @@ type Props = {
 
 export const AgentsForm = ({ initialValue, onCancel, onSuccess }: Props) => {
   const trpc = useTRPC();
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const createAgent = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
 
-        // After edit data will change immediately
-        if (initialValue?.id) {
-          queryClient.invalidateQueries(
-            trpc.agents.getOne.queryOptions({ id: initialValue.id })
-          );
-        }
-
-        // TODO: Invalidate free tier usage
         onSuccess?.();
       },
       onError: (error) => {
         toast.error(error.message);
+
+        if (error.data?.code === "FORBIDDEN") {
+          router.push("/upgrade");
+        }
       },
     })
   );
@@ -54,7 +57,9 @@ export const AgentsForm = ({ initialValue, onCancel, onSuccess }: Props) => {
   const updateAgent = useMutation(
     trpc.agents.update.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
 
         if (initialValue?.id) {
           queryClient.invalidateQueries(
@@ -79,11 +84,11 @@ export const AgentsForm = ({ initialValue, onCancel, onSuccess }: Props) => {
   });
 
   const isEdit = !!initialValue?.id;
-  const isPending = createAgent.isPending || updateAgent.isPending
+  const isPending = createAgent.isPending || updateAgent.isPending;
 
   const onSubmit = (vales: agentsInsertSchemaType) => {
     if (isEdit) {
-      updateAgent.mutate({ ...vales, id: initialValue.id })
+      updateAgent.mutate({ ...vales, id: initialValue.id });
     } else {
       createAgent.mutate(vales);
     }

@@ -14,7 +14,11 @@ import {
 import { db } from "@/db";
 import { agents, meeting, user } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import {
+  createTRPCRouter,
+  premiumProcedure,
+  protectedProcedure,
+} from "@/trpc/init";
 
 import {
   DEFAULT_PAGE,
@@ -29,14 +33,14 @@ import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 
 export const meetingRouter = createTRPCRouter({
-  generateChatToken: protectedProcedure.mutation(async ({ ctx }) => { 
-    const token = streamChat.createToken(ctx.auth.user.id)
-    await streamChat.upsertUser({ 
+  generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
+    const token = streamChat.createToken(ctx.auth.user.id);
+    await streamChat.upsertUser({
       id: ctx.auth.user.id,
-      role: "admin"
-    })
+      role: "admin",
+    });
 
-    return token
+    return token;
   }),
   getTranscript: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -290,7 +294,7 @@ export const meetingRouter = createTRPCRouter({
         totalPages,
       };
     }),
-  create: protectedProcedure
+  create: premiumProcedure("meetings")
     .input(meetingInsertSchema)
     .mutation(async ({ input, ctx }) => {
       const [createMeeting] = await db

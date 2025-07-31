@@ -22,6 +22,7 @@ import { useState } from "react";
 import { CommandSelect } from "@/components/command-select";
 import { GenerateAvatar } from "@/components/generated-avatar";
 import { NewAgentsDialog } from "@/modules/agents/ui/components/new-agents-dialog";
+import { useRouter } from "next/navigation";
 
 type Props = {
   onSuccess?: (id?: string) => void;
@@ -31,6 +32,7 @@ type Props = {
 
 export const MeetingForm = ({ initialValue, onCancel, onSuccess }: Props) => {
   const trpc = useTRPC();
+  const router= useRouter()
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -50,18 +52,18 @@ export const MeetingForm = ({ initialValue, onCancel, onSuccess }: Props) => {
           trpc.meeting.getMany.queryOptions({})
         );
 
-        // After edit data will change immediately
-        if (initialValue?.id) {
-          queryClient.invalidateQueries(
-            trpc.agents.getOne.queryOptions({ id: initialValue.id })
-          );
-        }
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
 
-        // TODO: Invalidate free tier usage
         onSuccess?.(data.id);
       },
       onError: (error) => {
         toast.error(error.message);
+
+        if (error.data?.code === 'FORBIDDEN') { 
+          router.push("/upgrade")
+        }
       },
     })
   );
